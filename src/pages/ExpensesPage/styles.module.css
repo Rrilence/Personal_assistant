@@ -1,0 +1,43 @@
+
+.icon {
+    width: 24px;
+    height: 24px;
+}
+
+.category {
+    display: flex;
+    gap: 8px;
+    padding-top: 10px;
+    align-items: center;
+}
+
+.total {
+    display: flex;
+    margin-top: 20px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.formModal {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-size: 16px;
+    color: #2b044b;
+}
+
+.nameModal {
+    width: 190px;
+    margin: 20px auto 0;
+    font-size: 18px;
+    padding: 5px 10px;
+    border: 1px solid #a16ccc;
+    border-radius: 5px;
+    text-align: center;
+}
+
+@media (min-width: 600px) {
+    .total {
+        font-size: 20px;
+    }
+}
