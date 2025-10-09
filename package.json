@@ -2,7 +2,7 @@
   "name": "my-react-app",
   "private": true,
   "version": "0.0.0",
-  "homepage": "https://Rrilence.github.io/Personal_assistant",
+  "homepage": "https://rrilence.github.io/Personal_assistant",
   "type": "module",
   "scripts": {
     "dev": "vite",
