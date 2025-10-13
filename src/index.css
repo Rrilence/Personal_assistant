@@ -68,6 +68,13 @@ h1 {
     cursor: pointer;
 }
 
+.button:disabled {
+    background-color: #fdfcfe;
+    border: 1px solid #320457;
+    color: #320457;
+    cursor: not-allowed;
+}
+
 @media (min-width: 600px) {
     .container {
         width: auto;

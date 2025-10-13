@@ -10,20 +10,22 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "deploy": "gh-pages -d dist"
-
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.9.0",
+    "lodash": "^4.17.21",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-hook-form": "^7.64.0",
     "react-paginate": "^8.3.0",
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.9.3",
+    "react-toastify": "^11.0.5",
     "react-transition-group": "^4.4.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
+    "@types/lodash": "^4.17.20",
     "@types/react": "^19.1.13",
     "@types/react-dom": "^19.1.9",
     "@types/react-transition-group": "^4.4.12",

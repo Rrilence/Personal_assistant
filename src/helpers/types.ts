@@ -13,3 +13,17 @@ export interface InitialState {
     clothCost: number;
     entertainmentCost: number;
 }
+
+export interface ExpensesContextType {
+    rentCost: number;
+    eatCost: number;
+    transportCost: number;
+    clothCost: number;
+    entertainmentCost: number;
+}
+
+export interface ExpensePayload {
+    category: string,
+    cost: number;
+}
+

@@ -1,20 +1,4 @@
-import { createContext, useReducer,type Dispatch, type ReactNode } from "react";
-import { reducer } from "./reducer";
-import type { Info, InitialState } from "../helpers/types";
-import type { InfoReducer } from "./reducer";
-
-export interface ContextProviderProps {
-       children: ReactNode;
-   }
-
-export interface ExpensesContextType {
-    rentCost: number;
-    eatCost: number;
-    transportCost: number;
-    clothCost: number;
-    entertainmentCost: number;
-    dispatch: Dispatch<InfoReducer>;
-}
+import type { Info, InitialState, ExpensesContextType } from "../../helpers/types";
 
 const defaultinitialState: ExpensesContextType = {
     rentCost: 0,
@@ -22,12 +6,10 @@ const defaultinitialState: ExpensesContextType = {
     transportCost: 0,
     clothCost: 0,
     entertainmentCost: 0,
-    dispatch: () => {}
 }
 
-export const ExpensesContext = createContext<ExpensesContextType>(defaultinitialState);
 
-function getInitialState(): InitialState {
+export function getInitialState(): InitialState {
     const defaultExpenses = localStorage.getItem('expenses');
 
     if(defaultExpenses) {
@@ -70,12 +52,4 @@ function getInitialState(): InitialState {
         console.log("LocalStorage expenses is null or undefined")
         return defaultinitialState;
     }
-}
-
-export const ContextProvider = ({children}: ContextProviderProps) => {
-    const [value, dispatch] = useReducer(reducer, getInitialState())
-    
-    return <ExpensesContext.Provider value={{...value, dispatch}}>
-        {children}
-    </ExpensesContext.Provider>
 }

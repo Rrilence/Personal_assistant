@@ -1,8 +1,10 @@
 import styles from './styles.module.css'
 import { ExpenseItem } from "../ExpensesItem/ExpenseItem"
 import type { Info } from "../../helpers/types";
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import ReactPaginate from 'react-paginate';
+import { debounce } from 'lodash';
+import { validateDate } from '../../helpers/formatting';
 interface ExpensesListProps { 
     expenses: Info[];
     handleEditExpense: (id: string) => void;
@@ -12,7 +14,7 @@ interface ExpensesListProps {
 export const ExpensesList = ({expenses, handleEditExpense, deleteExpense}: ExpensesListProps) => {
 
 const [category, setCategory] = useState('Все');
-const [data, setDate] = useState<string | undefined>(undefined);
+const [data, setData] = useState<string | undefined>(undefined);
 const [itemOffset, setItemOffset] = useState(0);
 
 const filteredExpenses = useMemo(() => {
@@ -26,7 +28,7 @@ const filteredExpenses = useMemo(() => {
 
 const endOffset = itemOffset + 10;
 const currentExpenses = filteredExpenses.slice(itemOffset, endOffset);
-const pageCount = Math.ceil(expenses.length / 10);
+const pageCount = Math.ceil(filteredExpenses.length / 10);
 
 const handlePageClick = (event: {selected: number}) => {
     const newOffset = (event.selected * 10) % filteredExpenses.length;
@@ -36,9 +38,12 @@ const handlePageClick = (event: {selected: number}) => {
 const handleCategory = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setCategory(event.target.value)
 }
-const handleDate = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setDate(event.target.value)
-}
+
+const handleChange = useCallback(debounce((date: string | undefined) => {
+    console.log('setData called with:', date);    
+    setData(date)
+    }, 500)
+, [])
 
     return (
         <>
@@ -60,8 +65,10 @@ const handleDate = (event: React.ChangeEvent<HTMLInputElement>) => {
             type="date" 
             className='input' 
             style={{width: '130px'}}
+            maxLength={8}
             value={data}
-            onChange={handleDate} 
+            onChange={(e) => handleChange(e.target.value)}
+            // onInput={validateDate} 
             />
         </div>
         <div className={styles.container}>

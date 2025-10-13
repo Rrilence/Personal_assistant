@@ -1,11 +1,11 @@
- import { ExpensesContext } from '../../helpers/context'
- import {  useEffect, useState, Suspense, useContext} from 'react'
+  import {  useEffect, useState} from 'react'
  import {useForm, type SubmitHandler} from 'react-hook-form'
  import styles from './styles.module.css'
  import Modal from '../../components/Modal/Modal'
+ import { ToastContainer } from 'react-toastify'
  
  import { type Info} from '../../helpers/types'
-
+ import { notify, notifyName } from '../../helpers/toasts'
  import { ExpensesList } from '../../components/ExpensesList/ExpensesList'
  
  import rent from '../../assets/rent.png'
@@ -13,21 +13,43 @@
  import pizza from '../../assets/pizza.png'
  import bus from '../../assets/bus.jpg'
  import film from '../../assets/film.png'
- 
+import { formattingCost} from '../../helpers/formatting'
+import { useDispatch} from 'react-redux'
+import { addCost, removeCost } from '../../features/Category/category-slice'
+import { useCategory } from '../../hooks/use-category'
+
+
 const ExpensesPage = () => {
-    const defaultExpenses = localStorage.getItem('expenses');
-    const initialState: Info[] = defaultExpenses ? JSON.parse(defaultExpenses) : [];
-  
+    const initialState = () => {
+        const defaultExpenses = localStorage.getItem('expenses');
+            if (defaultExpenses) { try {
+                const parseExpenses: Info [] = JSON.parse(defaultExpenses)
+                    if(Array.isArray(parseExpenses) && parseExpenses.length > 0) {
+                        return parseExpenses
+                    } else {
+                        return []
+                    }
+            } catch (error) {
+                console.error("Ошибка при парсинге данных из localStorage:", error);
+                return [];
+            }
+        } else {
+            console.log("LocalStorage expenses is null or undefined");
+            return [] 
+        }
+    }
+    
     const [text, setText] = useState('');
-    const [expensesState, setExpenseState] = useState<Info[]>(initialState);
+    const [expensesState, setExpenseState] = useState<Info[]>(initialState());
     const [modalIsOPen, setModalIsOpen] = useState(false);
     const [editExpenseId, setEditExpenseId] = useState<string | null>(null)
 
     const defaultDate = new Date().toISOString().substring(0,10);
 
-    const {rentCost, eatCost, transportCost, clothCost, entertainmentCost, dispatch} = useContext(ExpensesContext)
+    const dispatch = useDispatch();
+    const [rentCost, eatCost, transportCost, clothCost, entertainmentCost] = useCategory();
 
-    const {register, handleSubmit, setValue, watch, reset, formState: {errors}} = useForm<Info>({
+    const {register, handleSubmit, setValue, reset, formState: {errors}} = useForm<Info>({
         defaultValues: {
             data: defaultDate
         }
@@ -40,13 +62,13 @@ const ExpensesPage = () => {
             data.name = text;
             data.id = crypto.randomUUID();
             setExpenseState([...expensesState, data])
-            alert("Статья расходов добавлена")
-            dispatch({
-                type: data.category,
-                payload: {
-                    cost: Number(data.cost)
-                }
+            notify();
+            dispatch(
+                addCost ({
+                category: data.category,
+                cost: Number(data.cost)
             })
+            )
         }
         reset();
         closeModal();
@@ -61,14 +83,21 @@ const ExpensesPage = () => {
         }
         return true
     }
-    
-    const openModal = () => {
-        if(text.length === 0 && !watch('name')) {
-            alert('Введите название статьи расходов')
-        } else {
-            setModalIsOpen(true)
+
+     const isDate = (data: string): true | string => { 
+        if (data.length > 10) {
+        return 'Неверный формат даты. Используйте ДД.ММ.ГГГГ';
         }
+        return true;
+     }
+
+    const handleFormSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        openModal()
     }
+    
+    const openModal = () => setModalIsOpen(true);
+    
     const closeModal = () => {
         setModalIsOpen(false)
         setEditExpenseId(null)
@@ -86,7 +115,7 @@ const ExpensesPage = () => {
             }
         else {
             setText('')
-            alert('Введите название на русском языке')
+            notifyName();
         }
     }
 
@@ -105,16 +134,38 @@ const ExpensesPage = () => {
 
     const updateExpense = (updateExpense: Info) => {
         if(editExpenseId) {
+            const oldExpense = expensesState.find(expense => expense.id === editExpenseId)
+             if (!oldExpense) return;
             const updateExpenses = expensesState.map(expense => expense.id === editExpenseId ? {...expense, ...updateExpense} : expense)
 
             setExpenseState(updateExpenses)
+            dispatch(
+                addCost ({
+                category: updateExpense.category,
+                cost: Number(updateExpense.cost)
+            })
+            )
+            dispatch(
+                removeCost ({
+                category: oldExpense.category,
+                cost: Number(oldExpense.cost)
+            })
+            )
             closeModal();
         }
     }
 
     const deleteExpense = (id: string) => {
         const updateExpenses = expensesState.filter(expense => expense.id !== id)
-        setExpenseState(updateExpenses)
+        setExpenseState(updateExpenses);
+        const deleteExpense = expensesState.find(expense => expense.id === id)
+        if(deleteExpense) 
+        dispatch(
+                removeCost ({
+                category: deleteExpense.category,
+                cost: Number(deleteExpense.cost)
+            })
+            )
     }
 
     useEffect(() => {
@@ -124,15 +175,16 @@ const ExpensesPage = () => {
             console.error('ошибка загрузки данных из LocalStorage', error);
         }}, [expensesState])
 
-    const totalCost = String(rentCost + eatCost + transportCost + clothCost + entertainmentCost).replace(/\B(?=(\d{3})+(?!\d))/g, " ")
+    const totalCost = formattingCost(rentCost + eatCost + transportCost + clothCost + entertainmentCost)
         
     return (
         <div className='container'>
+            <ToastContainer/>
             <h1>Расходы</h1>
             <form 
             className="form" 
             autoComplete="off" 
-            action={openModal}
+            onSubmit={handleFormSubmit}
             >
                 <label htmlFor="name">Название:</label>
                 <input 
@@ -140,38 +192,36 @@ const ExpensesPage = () => {
                     className="input"
                     value={text}
                     onChange={handleInput}
-                    form='formModal'
+                    id='name'
                  />
-                    <button className="button" onClick={openModal}>Добавить</button>
+                    <button type='submit' className="button" disabled={!text}>Добавить</button>
             </form>
             <div className={styles.category}>
                 <img className={styles.icon} src={rent} alt="rent" />
                 <p>Услуги ЖКХ:</p>
-                <span>{String(rentCost).replace(/\B(?=(\d{3})+(?!\d))/g, " ")} руб.</span>
+                <span>{formattingCost(rentCost)} руб.</span>
             </div>
             <div className={styles.category}>
                 <img className={styles.icon} src={pizza} alt="pizza" />
                 <p>Еда:</p>
-                <span>{String(eatCost).replace(/\B(?=(\d{3})+(?!\d))/g, " ")} руб.</span>
+                <span>{formattingCost(eatCost)} руб.</span>
             </div>
             <div className={styles.category}>
                 <img className={styles.icon} src={bus} alt="transport" />
                 <p>Транспорт:</p>
-                <span>{String(transportCost).replace(/\B(?=(\d{3})+(?!\d))/g, " ")} руб.</span>
+                <span>{formattingCost(transportCost)} руб.</span>
             </div>
             <div className={styles.category}>
                 <img className={styles.icon} src={cloth} alt="cloth" />
                 <p>Одежда:</p>
-                <span>{String(clothCost).replace(/\B(?=(\d{3})+(?!\d))/g, " ")} руб.</span>
+                <span>{formattingCost(clothCost)} руб.</span>
             </div>
             <div className={styles.category} style={{paddingBottom: '20px'}}>
                 <img className={styles.icon} src={film} alt="entertainments" />
                 <p>Развлечения:</p>
-                <span>{String(entertainmentCost).replace(/\B(?=(\d{3})+(?!\d))/g, " ")} руб.</span>
+                <span>{formattingCost(entertainmentCost)} руб.</span>
             </div>
-            <Suspense fallback={<div>Загрузка...</div>}>
                 <ExpensesList expenses={expensesState} handleEditExpense ={handleEditExpense} deleteExpense={deleteExpense}/>
-            </Suspense>
             <div className={styles.total}>
                 <p>Итого:</p>
                 <span>&nbsp;{totalCost} руб.</span>
@@ -182,13 +232,14 @@ const ExpensesPage = () => {
                 <form 
                 className={styles.formModal} 
                 onSubmit={handleSubmit(submit)}
-                autoComplete="off">
+                autoComplete="off"
+                >
                     <input 
                     type='text'
                     className={styles.nameModal}
                     {...register('name', {required: true})}/>
                     <label htmlFor="category">Выберите категорию расходов:</label>
-                    <select className="input" {...register('category')}>
+                    <select id='category' className="input" {...register('category')}>
                         <option value="Услуги ЖКХ">Услуги ЖКХ</option>
                         <option value="Еда">Еда</option>
                         <option value="Транспорт">Транспорт</option>
@@ -206,7 +257,7 @@ const ExpensesPage = () => {
                     <input 
                     type="date"
                     className="input"
-                    {...register('data', {required: 'Введите дату'})} 
+                    {...register('data', {required: 'Введите дату', validate: isDate})} 
                     />
                     {errors.cost && <p style={{ color: 'red' }}>{errors.cost.message}</p>}
                     {errors.data && <p style={{ color: 'red' }}>{errors.data.message}</p>}

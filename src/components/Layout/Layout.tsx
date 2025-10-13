@@ -1,4 +1,4 @@
-import { formatDate } from '../../helpers/formatDate'
+import { formatDate } from '../../helpers/formatting'
 import styles from './styles.module.css'
 import { NavLink, Outlet } from "react-router-dom"
 import assistant from '../../assets/assistant.jpg'
