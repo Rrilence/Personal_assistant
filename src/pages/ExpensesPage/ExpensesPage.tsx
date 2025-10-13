@@ -1,22 +1,23 @@
   import {  useEffect, useState} from 'react'
  import {useForm, type SubmitHandler} from 'react-hook-form'
- import styles from './styles.module.css'
- import Modal from '../../components/Modal/Modal'
+ import { useDispatch} from 'react-redux'
  import { ToastContainer } from 'react-toastify'
+ import styles from './styles.module.css'
+
+ import Modal from '../../components/Modal/Modal'
+ import { ExpensesList } from '../../components/ExpensesList/ExpensesList'
+ import { addCost, removeCost } from '../../features/Category/category-slice'
+ import { useCategory } from '../../hooks/use-category'
  
+ import { formattingCost} from '../../helpers/formatting'
  import { type Info} from '../../helpers/types'
  import { notify, notifyName } from '../../helpers/toasts'
- import { ExpensesList } from '../../components/ExpensesList/ExpensesList'
  
  import rent from '../../assets/rent.png'
  import cloth from '../../assets/cloth.png'
  import pizza from '../../assets/pizza.png'
  import bus from '../../assets/bus.jpg'
  import film from '../../assets/film.png'
-import { formattingCost} from '../../helpers/formatting'
-import { useDispatch} from 'react-redux'
-import { addCost, removeCost } from '../../features/Category/category-slice'
-import { useCategory } from '../../hooks/use-category'
 
 
 const ExpensesPage = () => {

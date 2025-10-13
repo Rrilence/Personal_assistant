@@ -4,7 +4,6 @@ import type { Info } from "../../helpers/types";
 import { useCallback, useMemo, useState } from 'react';
 import ReactPaginate from 'react-paginate';
 import { debounce } from 'lodash';
-import { validateDate } from '../../helpers/formatting';
 interface ExpensesListProps { 
     expenses: Info[];
     handleEditExpense: (id: string) => void;
