@@ -23,6 +23,7 @@ main {
 .container {
     width: fit-content;
     height: fit-content;
+    min-height: 480px;
     margin: auto;
     padding: 30px;
     background-color: rgb(255, 255, 255);
@@ -33,14 +34,6 @@ main {
 h1 {
     font-size: 25px;
     color: #320457
-}
-
-.form {
-    display: flex;
-    flex-direction: column;
-    margin-top: 10px;
-    padding-bottom: 10px;
-    gap: 10px;
 }
 
 .input {
@@ -75,16 +68,16 @@ h1 {
     cursor: not-allowed;
 }
 
+.category {
+    font-size: 14px;
+    color: #8f82a1;
+}
+
 @media (min-width: 600px) {
     .container {
         width: auto;
         margin: auto 90px;
         font-size: 18px;
-    }
-    .form {
-        flex-direction: row;
-        align-items: center;
-        margin-bottom: 15px;
     }
     .input {
     width: 100%;

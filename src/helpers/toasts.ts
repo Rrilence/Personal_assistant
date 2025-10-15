@@ -21,5 +21,15 @@ const notifyName = () => {
             })
         } 
 
+const notifyWeatherCity = () => {
+        toast.warn('Неизвестный город', {
+            toastId: '007',
+            position: "top-right",
+            autoClose: 1000,
+            closeOnClick: true,
+            theme: "light",
+            })
+        } 
 
-export {notify, notifyName}
+
+export {notify, notifyName, notifyWeatherCity}

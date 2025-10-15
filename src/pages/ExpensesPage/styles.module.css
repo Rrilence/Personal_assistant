@@ -18,6 +18,14 @@
     font-weight: bold;
 }
 
+.form {
+    display: flex;
+    flex-direction: column;
+    margin-top: 10px;
+    padding-bottom: 10px;
+    gap: 10px;
+}
+
 .formModal {
     display: flex;
     flex-direction: column;
@@ -39,5 +47,10 @@
 @media (min-width: 600px) {
     .total {
         font-size: 20px;
+    }
+     .form {
+        flex-direction: row;
+        align-items: center;
+        margin-bottom: 15px;
     }
 }

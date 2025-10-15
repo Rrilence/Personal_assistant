@@ -27,3 +27,15 @@ export interface ExpensePayload {
     cost: number;
 }
 
+export interface InfoWeather {
+    data: {
+        id?: number,
+        name: string,
+        description: string,
+        icon: string,
+        temp: number,
+        hamidity: number,
+        windSpeed: number,
+    },
+    error: null | string
+}

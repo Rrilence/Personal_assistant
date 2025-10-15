@@ -1,6 +1,7 @@
 import styles from './styles.module.css'
 import { useState } from 'react';
 import type { Info } from "../../helpers/types"
+import clsx from 'clsx';
 
 interface ExpenseItemInfo extends Info {
     handleEditExpense: (id: string) => void;
@@ -22,7 +23,7 @@ export function ExpenseItem({name, category, cost, data, id, handleEditExpense, 
         <div className={styles.wrapper} onClick={additionFunc}>
             <div className={styles.name}>
                 <p className={styles.title}>{name}</p>
-                <p className={styles.category}>{category}</p>
+                <p className={clsx('category', styles.category)}>{category}</p>
             </div>
             <p className={styles.cost}>{cost.replace(/\B(?=(\d{3})+(?!\d))/g, " ")}</p>
             <p className={styles.date}>{formatDate}</p>

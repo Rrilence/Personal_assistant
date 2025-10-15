@@ -1,4 +1,4 @@
-  import {  useEffect, useState} from 'react'
+ import {  useEffect, useState} from 'react'
  import {useForm, type SubmitHandler} from 'react-hook-form'
  import { useDispatch} from 'react-redux'
  import { ToastContainer } from 'react-toastify'
@@ -183,7 +183,7 @@ const ExpensesPage = () => {
             <ToastContainer/>
             <h1>Расходы</h1>
             <form 
-            className="form" 
+            className={styles.form} 
             autoComplete="off" 
             onSubmit={handleFormSubmit}
             >
