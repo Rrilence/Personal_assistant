@@ -1,0 +1,32 @@
+.form {
+    display: flex;
+    flex-direction: column;
+    margin-top: 10px;
+    padding-bottom: 10px;
+    gap: 10px;
+}
+
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.img {
+    width: 120px;
+    height: 120px;
+}
+
+@media (min-width: 600px) {
+    .form {
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+    .wrapper {
+        width: 100%;
+        flex-direction: column;
+        gap: 5px;
+}
+}
