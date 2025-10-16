@@ -73,6 +73,14 @@ h1 {
     color: #8f82a1;
 }
 
+.containerClassName {
+    display: flex;
+    gap: 8px;
+    list-style: none;
+    justify-content: center;
+    padding: 10px 0 0;
+}
+
 @media (min-width: 600px) {
     .container {
         width: auto;

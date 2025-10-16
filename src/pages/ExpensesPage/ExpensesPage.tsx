@@ -173,7 +173,7 @@ const ExpensesPage = () => {
         try {
             localStorage.setItem('expenses', JSON.stringify(expensesState))          
         } catch (error) {
-            console.error('ошибка загрузки данных из LocalStorage', error);
+            console.error('ошибка загрузки данных в LocalStorage', error);
         }}, [expensesState])
 
     const totalCost = formattingCost(rentCost + eatCost + transportCost + clothCost + entertainmentCost)

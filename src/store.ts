@@ -1,11 +1,13 @@
 import { configureStore } from "@reduxjs/toolkit";
 
 import { categoryReducer } from "./features/Category/category-slice";
+import { wordReducer } from "./features/WordTranslate/wordTranslate-slice";
 
 
 export const store = configureStore({
     reducer: {
-        category: categoryReducer
+        category: categoryReducer,
+        word: wordReducer
     },
     devTools: true
 })
