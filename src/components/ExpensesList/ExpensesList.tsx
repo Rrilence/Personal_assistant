@@ -104,7 +104,7 @@ const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
             pageCount={pageCount}
             previousLabel="<"
             renderOnZeroPageCount={null}
-            containerClassName={styles.containerClassName}
+            containerClassName='containerClassName'
         />
         </>
     )

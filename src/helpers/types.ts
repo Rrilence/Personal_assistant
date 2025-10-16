@@ -27,6 +27,16 @@ export interface ExpensePayload {
     cost: number;
 }
 
+export interface WordsState {
+  word: string;
+  wordEn: string;
+  isRu: boolean;
+  wordTranslate: string,
+  dictionary: {
+    [key: string]: string
+  }
+}
+
 export interface InfoWeather {
     data: {
         id?: number,
@@ -38,4 +48,8 @@ export interface InfoWeather {
         windSpeed: number,
     },
     error: null | string
+}
+
+export interface Dictionary {
+    [key: string]: string;
 }
