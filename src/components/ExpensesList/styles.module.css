@@ -2,6 +2,7 @@
     margin-top: 10px;
     background-color: #f7f2fb;
     padding: 5px;
+    border-radius: 5px;
 }
 
 .headers {
@@ -37,12 +38,17 @@
 .date {
     width: 80px;
     text-align: center;
+    margin-right: 5px;
 }
 
 .filter {
     display: flex;
     flex-direction: column;
     gap: 5px;
+}
+
+.filterInput {
+    font-size: 14px;
 }
 
 .containerClassName {

@@ -13,7 +13,7 @@
 
 .total {
     display: flex;
-    margin-top: 20px;
+    margin: 0px 0 15px;
     font-size: 18px;
     font-weight: bold;
 }
@@ -29,7 +29,7 @@
 .formModal {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 13px;
     font-size: 16px;
     color: #2b044b;
 }

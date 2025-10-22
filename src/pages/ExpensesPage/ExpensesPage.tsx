@@ -11,37 +11,21 @@
  
  import { formattingCost} from '../../helpers/formatting'
  import { type Info} from '../../helpers/types'
- import { notify, notifyName } from '../../helpers/toasts'
+ import { notifyErrorExpenses, notifyName } from '../../helpers/toasts'
+ import { regExpression} from '../../helpers/validation'
  
  import rent from '../../assets/rent.png'
  import cloth from '../../assets/cloth.png'
  import pizza from '../../assets/pizza.png'
  import bus from '../../assets/bus.jpg'
  import film from '../../assets/film.png'
+import { addExpense, deleteExpenseApi, getState, updateExpenseApi } from '../../services/api-expenses'
 
 
 const ExpensesPage = () => {
-    const initialState = () => {
-        const defaultExpenses = localStorage.getItem('expenses');
-            if (defaultExpenses) { try {
-                const parseExpenses: Info [] = JSON.parse(defaultExpenses)
-                    if(Array.isArray(parseExpenses) && parseExpenses.length > 0) {
-                        return parseExpenses
-                    } else {
-                        return []
-                    }
-            } catch (error) {
-                console.error("Ошибка при парсинге данных из localStorage:", error);
-                return [];
-            }
-        } else {
-            console.log("LocalStorage expenses is null or undefined");
-            return [] 
-        }
-    }
     
     const [text, setText] = useState('');
-    const [expensesState, setExpenseState] = useState<Info[]>(initialState());
+    const [expensesState, setExpenseState] = useState<Info[]>([]);
     const [modalIsOPen, setModalIsOpen] = useState(false);
     const [editExpenseId, setEditExpenseId] = useState<string | null>(null)
 
@@ -56,20 +40,24 @@ const ExpensesPage = () => {
         }
     });
 
-    const submit: SubmitHandler<Info> = (data) => {
+    const submit: SubmitHandler<Info> = async (data) => {
         if(editExpenseId) {
             updateExpense(data)
         } else {
             data.name = text;
-            data.id = crypto.randomUUID();
-            setExpenseState([...expensesState, data])
-            notify();
-            dispatch(
-                addCost ({
-                category: data.category,
-                cost: Number(data.cost)
-            })
-            )
+            try {
+                const newExpense = await addExpense(data);
+                dispatch(
+                    addCost ({
+                    category: data.category,
+                    cost: Number(data.cost)
+                })
+                );
+                 setExpenseState([...expensesState, newExpense])
+            } catch (error) {
+                 console.error('ошибка загрузки данных на сервер', error);
+                 notifyErrorExpenses()
+            }
         }
         reset();
         closeModal();
@@ -108,9 +96,8 @@ const ExpensesPage = () => {
 
     const handleInput = (event: React.ChangeEvent<HTMLInputElement>) => {
         let name = event.target.value;
-        const validation: RegExp = /^[А-Яа-яё\s]/ui;
-        if (validation.test(name.trim())) {
-           name = name[0].toUpperCase() + name.slice(1)
+        if (regExpression.test(name.trim())) {
+            name = name[0].toUpperCase() + name.slice(1)
                 setText(name)
                 setValue('name', name)
             }
@@ -138,8 +125,9 @@ const ExpensesPage = () => {
             const oldExpense = expensesState.find(expense => expense.id === editExpenseId)
              if (!oldExpense) return;
             const updateExpenses = expensesState.map(expense => expense.id === editExpenseId ? {...expense, ...updateExpense} : expense)
-
             setExpenseState(updateExpenses)
+            const id = editExpenseId;
+            updateExpenseApi({...updateExpense, id});
             dispatch(
                 addCost ({
                 category: updateExpense.category,
@@ -160,21 +148,29 @@ const ExpensesPage = () => {
         const updateExpenses = expensesState.filter(expense => expense.id !== id)
         setExpenseState(updateExpenses);
         const deleteExpense = expensesState.find(expense => expense.id === id)
-        if(deleteExpense) 
-        dispatch(
-                removeCost ({
-                category: deleteExpense.category,
-                cost: Number(deleteExpense.cost)
-            })
+        if(deleteExpense) {
+            deleteExpenseApi(id);
+            dispatch(
+                    removeCost ({
+                    category: deleteExpense.category,
+                    cost: Number(deleteExpense.cost)
+                })
             )
+        }
     }
 
     useEffect(() => {
-        try {
-            localStorage.setItem('expenses', JSON.stringify(expensesState))          
+       const initialState = async () => {
+        try { const data = await getState();
+            setExpenseState(data)   
         } catch (error) {
-            console.error('ошибка загрузки данных в LocalStorage', error);
-        }}, [expensesState])
+            console.error('Ошибка при загрузке данных', error);
+            notifyErrorExpenses();
+            return []
+        }
+    }
+        initialState()
+    }, [])
 
     const totalCost = formattingCost(rentCost + eatCost + transportCost + clothCost + entertainmentCost)
         
@@ -187,7 +183,7 @@ const ExpensesPage = () => {
             autoComplete="off" 
             onSubmit={handleFormSubmit}
             >
-                <label htmlFor="name">Название:</label>
+                <label htmlFor="name">Название статьи расходов:</label>
                 <input 
                     type="text"
                     className="input"
@@ -197,6 +193,7 @@ const ExpensesPage = () => {
                  />
                     <button type='submit' className="button" disabled={!text}>Добавить</button>
             </form>
+            Категории расходов:
             <div className={styles.category}>
                 <img className={styles.icon} src={rent} alt="rent" />
                 <p>Услуги ЖКХ:</p>
@@ -222,11 +219,11 @@ const ExpensesPage = () => {
                 <p>Развлечения:</p>
                 <span>{formattingCost(entertainmentCost)} руб.</span>
             </div>
-                <ExpensesList expenses={expensesState} handleEditExpense ={handleEditExpense} deleteExpense={deleteExpense}/>
             <div className={styles.total}>
                 <p>Итого:</p>
                 <span>&nbsp;{totalCost} руб.</span>
             </div>
+                <ExpensesList expenses={expensesState} handleEditExpense ={handleEditExpense} deleteExpense={deleteExpense}/>
             <Modal
             isOpen = {modalIsOPen}
             onClose = {closeModal}>

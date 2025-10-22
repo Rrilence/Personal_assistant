@@ -1,33 +1,27 @@
 import { generate } from "random-words";
+import type { Dictionary } from "../../helpers/types";
+import { getDictionary } from "../../services/api-words";
 
-interface Dictionary {
-    [key: string]: string
-}
 
-const initialStorage = (): Dictionary => {
-            const defaultWords = localStorage.getItem('words');
-                if (defaultWords) { 
-                    try {
-                    const parseWords = JSON.parse(defaultWords)
-                        if(parseWords && typeof parseWords === 'object' && Object.keys(parseWords).length > 0) {
-                            return parseWords as Dictionary
-                        } else {
-                            return {}
-                        }
-                } catch (error) {
-                    console.error("Ошибка при парсинге данных из localStorage:", error);
-                    return {};
-                }
-            } else {
-                console.log("LocalStorage expenses is null or undefined");
-                return {} 
-            }
+const getState = async (): Promise<Dictionary[]> => {
+    const defaultWords = async () => {
+        try {
+            const data = await getDictionary();
+            if(Array.isArray(data) && data.length > 0) {
+                return data
+            } return []
+        } catch (error) {
+            console.error('Ошибка при загрузке данных', error);
+            return []
         }
-   const initStor = initialStorage();
+    }
+    return await defaultWords();
+}
+   const initStor = await getState();
 
    const initialState = () => {
         let newWord = generate()
-        while (typeof newWord === 'string' && initStor[newWord]) {
+        while (typeof newWord === 'string' && initStor.find(item => item.original === newWord)) {
             newWord = generate();
         } if(typeof newWord === 'string' && newWord.length > 0) {
             newWord = newWord[0].toUpperCase() + newWord.slice(1)
@@ -37,4 +31,4 @@ const initialStorage = (): Dictionary => {
 
    const initial = initialState()
 
-   export {initial, initStor, initialState, initialStorage}
+   export {initial, initStor, initialState, getState}

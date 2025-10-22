@@ -4,36 +4,36 @@ import ReactPaginate from 'react-paginate'
 import { useState } from 'react'
 
 interface wordList {
-    dictionary:  Dictionary
+    dictionary:  Dictionary[]
 }
 
 const  WordsList = ({dictionary}: wordList) => {
 
-    const dictionaryItem = Object.entries(dictionary);
     const [itemOffset, setItemOffset] = useState(0);
 
-    const endOffset = itemOffset + 20;
-    const currentWords = dictionaryItem.slice(itemOffset, endOffset);
-    const pageCount = Math.ceil(dictionaryItem.length / 20);
+    const endOffset = itemOffset + 14;
+    const currentWords = dictionary.slice(itemOffset, endOffset);
+    const pageCount = Math.ceil(dictionary.length / 14);
 
     const handlePageClick = (event: {selected: number}) => {
-    const newOffset = (event.selected * 10) % dictionaryItem.length;
+    const newOffset = (event.selected * 14) % dictionary.length;
     setItemOffset(newOffset);
   };
 
 
-    return ( <>
+    return <>
                 <div className={styles.wordList}>
-                {currentWords.map(([key, value]) => (
-                    <div 
-                    className={styles.wordItem}
-                    key={key}>
-                        <p><b>{key}: </b></p> 
-                        <p className={styles.value}>{value}</p>
-                    </div>
-                ))
-                }
+                    {currentWords.map((item) => (
+                        <div 
+                        className={styles.wordItem}
+                        key={item.id}>
+                            <p><b>{item.original}: </b></p> 
+                            <p className={styles.value}>{item.translate}</p>
+                        </div>
+                    ))
+                    }
                 </div>
+                {dictionary.length > 14 && 
                 <ReactPaginate
                     breakLabel="..."
                     nextLabel=">"
@@ -44,7 +44,8 @@ const  WordsList = ({dictionary}: wordList) => {
                     renderOnZeroPageCount={null}
                     containerClassName='containerClassName'
                 />
-    </>)  
+                }
+    </>  
 }
 
 export default WordsList

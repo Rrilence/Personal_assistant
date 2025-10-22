@@ -25,8 +25,8 @@ const WordTranslateSlice = createSlice({
         setWordTranslate: (state, action: PayloadAction<string>) => {
             state.wordTranslate = action.payload
         },
-        setDictionary: (state, action: PayloadAction<{[key: string]: string}>) => {
-            state.dictionary = {...state.dictionary, ...action.payload} 
+        setDictionary: (state, action: PayloadAction<{original: string, translate: string}>) => {
+            state.dictionary = [...state.dictionary, action.payload] 
         },
         resetWord: (state) => {
             state.word = initialState();

@@ -1,5 +1,5 @@
 export type Info = {
-    id?: string,
+    id: string,
     name?: string,
     category: string,
     cost: string,
@@ -27,19 +27,8 @@ export interface ExpensePayload {
     cost: number;
 }
 
-export interface WordsState {
-  word: string;
-  wordEn: string;
-  isRu: boolean;
-  wordTranslate: string,
-  dictionary: {
-    [key: string]: string
-  }
-}
-
 export interface InfoWeather {
     data: {
-        id?: number,
         name: string,
         description: string,
         icon: string,
@@ -50,6 +39,26 @@ export interface InfoWeather {
     error: null | string
 }
 
+export interface WordsState {
+  word: string;
+  wordEn: string;
+  isRu: boolean;
+  wordTranslate: string,
+  dictionary: Dictionary[],
+}
+
 export interface Dictionary {
-    [key: string]: string;
+    id?: string,
+    original: string,
+    translate: string,
+}
+
+export interface ErrorBoundaryState {
+    hasError: boolean,
+    error: Error | null,
+    errorInfo: React.ErrorInfo | null  
+}
+
+export interface ErrorBoundaryProps {
+    children: React.ReactNode
 }

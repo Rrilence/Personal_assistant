@@ -1,14 +1,15 @@
-import { useEffect, useState} from 'react'
+import { useState} from 'react'
+import { useDispatch, useSelector } from 'react-redux';
 import { ToastContainer } from "react-toastify"
 import styles from './styles.module.css'
-import axios from 'axios';
-import { useDispatch, useSelector } from 'react-redux';
+
 import { resetWord, selectDistionary, selectIsRu, selectWord, selectWordEn, selectWordTranslate } from '../../features/WordTranslate/wordTranslate-slice';
 import { setWord, setIsRu, setWordTranslate, setDictionary} from '../../features/WordTranslate/wordTranslate-slice';
-import { notifyWord, notifyWordTranslateMistake, notifyWordTranslateRight } from '../../helpers/toasts';
 import WordsList from '../../components/WordsList/wordsList';
+import { addWord, getTranslation } from '../../services/api-words';
 
-const apiKey = import.meta.env.VITE_API_KEY_DICTIONARY
+import { notifyWord, notifyWordTranslateMistake, notifyWordTranslateRight } from '../../helpers/toasts';
+import { regExpression } from '../../helpers/validation';
 
  const Words = () => {
     
@@ -21,20 +22,6 @@ const apiKey = import.meta.env.VITE_API_KEY_DICTIONARY
     const isRu = useSelector(selectIsRu);
     const wordTranslate = useSelector(selectWordTranslate)
     const dictionary = useSelector(selectDistionary)
-
-    const getTranslation = async (word: string) => {
-        try { const res = await axios
-            .get(`https://dictionary.yandex.net/api/v1/dicservice.json/lookup?key=${apiKey}&lang=en-ru&text=${word}`)
-            const translate = res.data.def[0].tr[0].text;
-            return translate   
-        } catch (e) {
-            if (e instanceof Error) {
-                console.error("Ошибка при получении данных");
-            } else {
-                console.error('Неизвестная ошибка');
-            }
-        }
-    }
 
     const showTranslation = async (word: string) => {
         let translate = await getTranslation(word);
@@ -50,13 +37,13 @@ const apiKey = import.meta.env.VITE_API_KEY_DICTIONARY
 
     const validateInput = (event: React.ChangeEvent<HTMLInputElement>) => {
         const translate = event.target.value;
-        const validation: RegExp = /^[А-Яа-яё\s]/ui;
-        if (validation.test(translate.trim())) {
-                dispatch(setWordTranslate(translate))
+            if (regExpression.test(translate.trim())) {
+                    dispatch(setWordTranslate(translate))
+                }
+            else {
+                dispatch(setWordTranslate(''))
+                notifyWord();
             }
-        else {
-            notifyWord();
-        }
     }
 
     const checkTranslation = async (e: React.FormEvent) => {
@@ -65,26 +52,24 @@ const apiKey = import.meta.env.VITE_API_KEY_DICTIONARY
         if(wordTranslate.trim().toLowerCase() === wordRu) {
             notifyWordTranslateRight()
             addWordDictioanry(word, wordRu)            
+        } else {
+            notifyWordTranslateMistake();
         }
-        notifyWordTranslateMistake();
         dispatch(setWordTranslate(''))
     }
 
-    const addWordDictioanry = (originalWord: string, translateWord: string) => {
-        translateWord = translateWord[0].toUpperCase() + translateWord.slice(1)
-        dispatch(setDictionary({[originalWord]: translateWord}));
+    const addWordDictioanry = async (originalWord: string, translateWord: string) => {
+        translateWord = translateWord[0].toUpperCase() + translateWord.slice(1);
+        try {
+            const newWord = await addWord({original: originalWord, translate: translateWord});
+            dispatch(setDictionary(newWord));
+        } catch (error) {
+            console.error('ошибка загрузки данных на сервер', error);
+        }
         setIsOpenInput(false)
         dispatch(resetWord());
         dispatch(setIsRu(false));
     }
-
-    useEffect(() => {
-        try {
-            localStorage.setItem('words', JSON.stringify(dictionary))  
-            } catch (error) {
-            console.error('ошибка загрузки данных в LocalStorage', error);
-        }      
-    }, [dictionary])
 
     return (
         <div className="container">
@@ -147,8 +132,6 @@ const apiKey = import.meta.env.VITE_API_KEY_DICTIONARY
                     </div>
                 }
             </div>
-
-            
         </div>
     )
  }

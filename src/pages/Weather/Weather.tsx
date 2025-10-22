@@ -1,82 +1,34 @@
 import { useActionState, useState} from "react"
 import { ToastContainer } from "react-toastify";
-import { notifyName, notifyWeatherCity } from "../../helpers/toasts";
 import styles from './styles.module.css'
-import type { InfoWeather } from "../../helpers/types";
 
-import axios from "axios";
+import {initialState, submitCity} from "../../services/api-weather"
+import { regExpression} from "../../helpers/validation";
 
-const initialState: InfoWeather = {
-    data: {
-        name: '',
-        description: '',
-        icon: '02d',
-        temp: 0,
-        hamidity: 0,
-        windSpeed: 0,
-    },
-    error: null,
-}
+import { notifyName } from "../../helpers/toasts";
+import { formatDateWeather } from "../../helpers/formatting";
+
+import wind from '../../assets/wind.png'
+import temp from '../../assets/temp.png'
+import hamidity from '../../assets/hamidity.png'
+import desc from '../../assets/description.jpg'
 
  const Weather = () => {
-
-    const apiKey = import.meta.env.VITE_API_KEY_WEATHER;
     
     const [city, setCity] = useState('');
     const [state, submitAction, isPending] = useActionState(submitCity, initialState)
 
-    async function submitCity (prevState: InfoWeather, formData: FormData): Promise<InfoWeather> {
-        const nameCity = formData.get('city')
-
-        try {
-            // Реализация получения данных с сервера, используя FETCH
-            // const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${nameCity}&units=metric&appid=${apiKey}&lang=ru`)
-            // .then(res => res.json())
-            // const weatherData = {
-            //     name: res.name,
-            //     description: res.weather[0].description,
-            //     icon: res.weather[0].icon,
-            //     temp: Math.round(res.main.temp),
-            //     hamidity: res.main.humidity,
-            //     windSpeed: res.wind.speed,
-            // }   
-            const res = await axios
-            .get(`https://api.openweathermap.org/data/2.5/weather?q=${nameCity}&units=metric&appid=${apiKey}&lang=ru`)
-             const weatherData = {
-                    name: res.data.name,
-                    description: res.data.weather[0].description,
-                    icon: res.data.weather[0].icon,
-                    temp: Math.round(res.data.main.temp),
-                    hamidity: res.data.main.humidity,
-                    windSpeed: res.data.wind.speed,
-                }
-
-            return {data: weatherData, error: null}
-            
-        } catch (e) {
-            if (e instanceof Error) {
-                console.error("Ошибка при получении данных");
-                notifyWeatherCity();
-            } else {
-                console.error('Неизвестная ошибка');
-            }
-        }
-        return prevState; 
-    }
-    
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         let name = event.target.value;
-        const validation: RegExp = /^[А-Яа-яё\s]/ui;
-            if (validation.test(name.trim())) {
-           name = name[0].toUpperCase() + name.slice(1)
+            if (regExpression.test(name.trim())) {
+                name = name[0].toUpperCase() + name.slice(1)
                 setCity(name)
             }
             else {
                 setCity('')
                 notifyName()
             }
-    }
-        
+        }  
 
     return (
         <div className="container">
@@ -86,7 +38,9 @@ const initialState: InfoWeather = {
             className={styles.form}
             autoComplete="off"
             action={submitAction}>
-                <label htmlFor="city">Введите название города:</label>
+                <label 
+                className={styles.label}
+                htmlFor="city">Введите название города:</label>
                 <input
                 className="input"
                 type="text"
@@ -101,22 +55,36 @@ const initialState: InfoWeather = {
                     disabled={isPending || city === ''}>
                     {isPending ? 'Загрузка...' : 'Показать'}
                 </button>
+            </form>
                 {state.data && (
                     <div className={styles.wrapper}>
                         <img 
                         className={styles.img}
                         src={`https://openweathermap.org/img/wn/${state.data.icon}@2x.png`} alt=""/>
-                        <p>{state.data.name}</p>
-                        <p>Температура воздуха: {state.data.temp} °C</p>
-                        <p>Влажность: {state.data.hamidity} %</p>
-                        <p>Скорость ветра: {state.data.windSpeed} м/с</p>
-                        <p>Описание: {state.data.description}</p>
+                        <div className={styles.city}>{state.data.name} 
+                            <div>{formatDateWeather(new Date())}</div>
+                            </div>
+                        <div className={styles.weather}>
+                            <img src={temp} alt="temp" width={'26px'} /> 
+                            <p>
+                            Температура воздуха: {state.data.temp} °C
+                            </p>
+                        </div>
+                        <div className={styles.weather}>
+                            <img src={hamidity} alt="hamidity" width={'26px'} />
+                            <p>Влажность: {state.data.hamidity} %</p> 
+                        </div>
+                        <div className={styles.weather}>
+                            <img src={wind} alt="wind" width={'26px'} />
+                            <p>Скорость ветра: {state.data.windSpeed} м/с</p>
+                        </div>
+                        <div className={styles.weather}>
+                            <img src={desc} alt="description" width={'26px'} />
+                            <p> Описание: {state.data.description}</p>
+                        </div>
                     </div>
-                )
-                }
-                
+                )}
                 {state.error && <p style={{color: 'red'}}>{state.error}</p>}
-            </form>
         </div>
     )
  }

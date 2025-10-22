@@ -7,9 +7,12 @@ const Layout = () => {
     return (
         <>
         <header className={styles.header}>
-            <NavLink className={styles.link} to="/">Расходы</NavLink>
-            <NavLink className={styles.link} to="/weather">Погода</NavLink>
-            <NavLink className={styles.link} to="/words">Слова</NavLink>
+            <p className={styles.title}>Мой персональный помощник</p>
+            <div className={styles.wrapper}>
+                <NavLink className={styles.link} to="/">Расходы</NavLink>
+                <NavLink className={styles.link} to="/weather">Погода</NavLink>
+                <NavLink className={styles.link} to="/words">Слова</NavLink>
+            </div>
             <img className={styles.assistant} src={assistant} alt="Perdonal assistant" />
         </header>
         

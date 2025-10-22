@@ -1,7 +1,16 @@
 const formatDate = (date: Date) => {
     const options: Intl.DateTimeFormatOptions = {
         year: 'numeric',
-        month: 'long'
+        month: 'long',
+    }
+    return date.toLocaleDateString('ru-RU', options)
+}
+
+const formatDateWeather = (date: Date) => {
+    const options: Intl.DateTimeFormatOptions = {
+        year: 'numeric',
+        month: 'long',
+        day: '2-digit',
     }
     return date.toLocaleDateString('ru-RU', options)
 }
@@ -18,7 +27,7 @@ const validateDate = (event: React.ChangeEvent<HTMLInputElement>) => {
         }
     };
 
-export {formatDate, formattingCost, validateDate}
+export {formatDate, formattingCost, validateDate, formatDateWeather}
 
 
 

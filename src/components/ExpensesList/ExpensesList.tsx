@@ -5,6 +5,9 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import ReactPaginate from 'react-paginate';
 import { debounce } from 'lodash';
 import { validateDate } from '../../helpers/formatting';
+
+import clsx from 'clsx';
+
 interface ExpensesListProps { 
     expenses: Info[];
     handleEditExpense: (id: string) => void;
@@ -61,7 +64,7 @@ const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         <div className={styles.filter}>
             <p>Фильтр:</p>
             <select 
-            className='input' 
+            className={clsx('input', styles.filterInput)} 
             style={{width: '130px'}} 
             value={category}
             onChange={handleCategory}>
@@ -74,7 +77,7 @@ const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
             </select>
             <input 
             type="date" 
-            className='input' 
+            className={clsx('input', styles.filterInput)}  
             style={{width: '130px'}}
             maxLength={8}
             value={inputValue}
@@ -91,11 +94,14 @@ const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
                 <p className={styles.cost}>Стоимость, руб</p>
                 <p className={styles.date}>Дата</p>
             </div>
-            {currentExpenses.map(item => (
-                <ExpenseItem key={item.id} {...item} handleEditExpense={handleEditExpense} deleteExpense={deleteExpense}/>
-            )
+            {currentExpenses.map(item => {
+               return (<ExpenseItem key={item.id} {...item}
+                handleEditExpense={handleEditExpense} 
+                deleteExpense={deleteExpense}
+               />)
+            }
             )}
-        </div>
+        </div> {filteredExpenses.length > 10 && 
         <ReactPaginate
             breakLabel="..."
             nextLabel=">"
@@ -105,7 +111,7 @@ const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
             previousLabel="<"
             renderOnZeroPageCount={null}
             containerClassName='containerClassName'
-        />
+        /> }
         </>
     )
 }

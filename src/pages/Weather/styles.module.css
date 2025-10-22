@@ -17,16 +17,29 @@
     height: 120px;
 }
 
+.city {
+    padding-left: 26px;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.weather {
+    display: flex;  
+    gap: 5px;
+    align-items: center;
+}
+
 @media (min-width: 600px) {
     .form {
         flex-direction: row;
-        flex-wrap: wrap;
         align-items: center;
         margin-bottom: 15px;
     }
     .wrapper {
-        width: 100%;
-        flex-direction: column;
-        gap: 5px;
-}
+        width: 250px;
+        margin: auto;
+    }
+    .label {
+        width: 100px;
+    }
 }

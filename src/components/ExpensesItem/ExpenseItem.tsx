@@ -19,8 +19,8 @@ export function ExpenseItem({name, category, cost, data, id, handleEditExpense, 
         setIsOpenAddition(!isOpenAddition)
     }
 
-    return <div className={styles.expenses}>
-        <div className={styles.wrapper} onClick={additionFunc}>
+    return <>
+        <div className={clsx(styles.wrapper, {[styles.open]: isOpenAddition})} onClick={additionFunc}>
             <div className={styles.name}>
                 <p className={styles.title}>{name}</p>
                 <p className={clsx('category', styles.category)}>{category}</p>
@@ -31,15 +31,17 @@ export function ExpenseItem({name, category, cost, data, id, handleEditExpense, 
         {isOpenAddition && (
             <div className={styles.additionalFunction}>
                 <button 
-                className={styles.button} 
+                className={styles.button}
+                title='Редактировать' 
                 onClick={() => handleEditExpense(id!)}
                 ><i className='fa-duotone fa-solid fa-pen-to-square' style={{color: '#2b044b'}}></i></button>
                 <button 
                 className={styles.button}
+                title='Удалить'
                 onClick={() => deleteExpense(id!)}
                 ><i className='fa-solid fa-trash' style={{color: '#2b044b'}}></i></button>
             </div>
         )
         }
-    </div>
+    </>
 }

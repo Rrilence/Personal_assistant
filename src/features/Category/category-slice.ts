@@ -7,7 +7,7 @@ import type { ExpensePayload } from "../../helpers/types";
 
 const CategorySlice = createSlice({
     name: 'category',
-    initialState: getInitialState(),
+    initialState: await getInitialState(),
     reducers: {
         addCost: (state, action: PayloadAction<ExpensePayload>) => {
             switch (action.payload.category) {
