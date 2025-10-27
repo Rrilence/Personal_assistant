@@ -32,6 +32,16 @@ const notifyWeatherCity = () => {
     })
 } 
 
+const notifyGeolocation = () => {
+    toast.error('Неудалось определить вашу геолокацию', {
+        toastId: '003',
+        position: "top-right",
+        autoClose: 1500,
+        closeOnClick: true,
+        theme: "light",
+    })
+} 
+
 const notifyWord = () => {
     toast.warn('Введите перевод на русском языке', {
         toastId: '004',
@@ -53,7 +63,7 @@ const notifyAddWord = () => {
 } 
 
 const notifyWordTranslateRight = () => {
-    toast.success('Браво! Отличные знания! Слово добавлено в словарь', {
+    toast.success('Браво! Отличные знания!', {
         toastId: '005',
         position: "top-right",
         autoClose: 1500,
@@ -82,4 +92,14 @@ const notifyErrorExpenses = () => {
     })
 }
 
-export {notify, notifyName, notifyWeatherCity, notifyWord, notifyWordTranslateMistake, notifyWordTranslateRight, notifyErrorExpenses, notifyAddWord }
+export {
+    notify, 
+    notifyName, 
+    notifyWeatherCity, 
+    notifyWord, 
+    notifyWordTranslateMistake, 
+    notifyWordTranslateRight, 
+    notifyErrorExpenses, 
+    notifyAddWord,
+    notifyGeolocation 
+}

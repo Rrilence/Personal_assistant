@@ -42,7 +42,10 @@ const  WordsList = ({dictionary}: wordList) => {
                     pageCount={pageCount}
                     previousLabel="<"
                     renderOnZeroPageCount={null}
-                    containerClassName='containerClassName'
+                    containerClassName='containerClassName'   
+                    pageLinkClassName="page-link"
+                    previousLinkClassName="page-link"
+                    nextLinkClassName="page-link"
                 />
                 }
     </>  

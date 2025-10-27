@@ -111,6 +111,9 @@ const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
             previousLabel="<"
             renderOnZeroPageCount={null}
             containerClassName='containerClassName'
+            pageLinkClassName="page-link"
+            previousLinkClassName="page-link"
+            nextLinkClassName="page-link"
         /> }
         </>
     )

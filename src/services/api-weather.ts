@@ -1,10 +1,10 @@
 import axios from "axios";
 import type { InfoWeather } from "../helpers/types";
-import { notifyWeatherCity } from "../helpers/toasts";
+import { notifyGeolocation, notifyWeatherCity } from "../helpers/toasts";
 
 const apiKey = import.meta.env.VITE_API_KEY_WEATHER;
 
-export const initialState: InfoWeather = {
+export const defaultState: InfoWeather = {
     data: {
         name: '',
         description: '',
@@ -16,13 +16,11 @@ export const initialState: InfoWeather = {
     error: null,
 }
 
-export async function submitCity (prevState: InfoWeather, formData: FormData): Promise<InfoWeather> {
-        const nameCity = formData.get('city')
-
-        try {  
-            const res = await axios
-            .get(`https://api.openweathermap.org/data/2.5/weather?q=${nameCity}&units=metric&appid=${apiKey}&lang=ru`)
-             const weatherData = {
+export async function initialGeolocation (lat: number, lng: number): Promise<InfoWeather> {
+    try {
+        const res =  await axios
+        .get(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lng}&appid=${apiKey}`)
+        const weatherData = {
                     name: res.data.name,
                     description: res.data.weather[0].description,
                     icon: res.data.weather[0].icon,
@@ -30,19 +28,45 @@ export async function submitCity (prevState: InfoWeather, formData: FormData): P
                     hamidity: res.data.main.humidity,
                     windSpeed: res.data.wind.speed,
                 }
+                return {data: weatherData, error: null}
+    } catch (error) {
+        console.error("Ошибка при получении данных геолокации", error);
+        notifyGeolocation()
+    }
+    return { ...defaultState,
+        error: 'Геолокация не определена'
+    }
+}
 
-            return {data: weatherData, error: null}
-            
-        } catch (e) {
-            if (e instanceof Error) {
-                console.error("Ошибка при получении данных");
-                notifyWeatherCity();
-            } else {
-                console.error('Неизвестная ошибка');
-            }
+export async function submitCity (prevState: InfoWeather, formData: FormData): Promise<InfoWeather> {
+    const nameCity = formData.get('city')
+    if (!nameCity) {
+        return { ...defaultState, error: 'Название города не может быть пустым' };
         }
-        return {
-            data: prevState.data, 
-            error: 'Город не найден'
+    try {  
+        const res = await axios
+        .get(`https://api.openweathermap.org/data/2.5/weather?q=${nameCity}&units=metric&appid=${apiKey}&lang=ru`)
+            const weatherData = {
+                name: res.data.name,
+                description: res.data.weather[0].description,
+                icon: res.data.weather[0].icon,
+                temp: Math.round(res.data.main.temp),
+                hamidity: res.data.main.humidity,
+                windSpeed: res.data.wind.speed,
+            }
+
+        return {data: weatherData, error: null}
+            
+    } catch (e) {
+        if (e instanceof Error) {
+            console.error("Ошибка при получении данных");
+                notifyWeatherCity();
+        } else {
+            console.error('Неизвестная ошибка');
         }
     }
+    return {
+        data: prevState.data, 
+        error: 'Город не найден'
+    }
+}
