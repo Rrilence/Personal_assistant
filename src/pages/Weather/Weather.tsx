@@ -1,13 +1,11 @@
-// import { Suspense } from "react";
 import { useActionState, useEffect, useState} from "react"
 import { ToastContainer } from "react-toastify";
 import styles from './styles.module.css'
 
-import { defaultState, initialGeolocation, submitCity} from "../../services/api-weather"
+import { defaultState, submitCity, submitGeolocation} from "../../services/api-weather"
 import { regExpression} from "../../helpers/validation";
 
 import { notifyName } from "../../helpers/toasts";
-import type { InfoWeather } from "../../helpers/types";
 import { formatDateWeather } from "../../helpers/formatting";
 import { useLocation } from "../../hooks/use-location";
 
@@ -19,12 +17,13 @@ import desc from '../../assets/description.jpg'
 
  const Weather = () => {
     
-     const {lat, lng, locationError, available, enable} = useLocation()
-    const [initialState, setInitialState] = useState<InfoWeather>(defaultState)
+    const {lat, lng, locationError, available, enable} = useLocation();
+    
     const [city, setCity] = useState('');
-    const [state, submitAction, isPending] = useActionState(submitCity, initialState)
 
-
+    const [geoState, submitGeoAction] = useActionState(submitGeolocation, defaultState)
+    const [cityState, submitAction, isPending] = useActionState(submitCity, defaultState)
+ 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         let name = event.target.value;
             if (regExpression.test(name.trim())) {
@@ -38,28 +37,14 @@ import desc from '../../assets/description.jpg'
         }  
 
     useEffect(() => {
-        const fetchGeolocation = async () => {
-            console.log(lat, lng);
-            
-            if(lat && lng) {
-                try {
-                    const data = await initialGeolocation(lat, lng)
-                    console.log(data);
-                    
-                    setInitialState(data)
-                } catch (error) {
-                    console.error("Ошибка при загрузке данных геолокации:", error);
-                    setInitialState(defaultState);
-                }
-    
-            }
-            if(locationError) {
-                console.error('Ошибка при получении адреса пользователя', locationError.message);
-                setInitialState(defaultState);
-            }
+        if(lat && lng) {
+            submitGeoAction({lat, lng})      
+        } else if(locationError) {
+            console.error('Ошибка определения местоположения', locationError?.message);
         }
-        fetchGeolocation()
-    }, [lat, lng, locationError]) 
+    }, [lat, lng, locationError])
+
+    const currentState = cityState.data.name ? cityState : geoState
 
     return (
             <div className="container">
@@ -93,35 +78,35 @@ import desc from '../../assets/description.jpg'
                         {isPending ? 'Загрузка...' : 'Показать'}
                     </button>
                 </form>
-                    {state.data && (
+                    {currentState.data && (
                         <div className={styles.wrapper}>
                             <img 
                             className={styles.img}
-                            src={`https://openweathermap.org/img/wn/${state.data.icon}@2x.png`} alt=""/>
-                            <div className={styles.city}>{state.data.name} 
+                            src={`https://openweathermap.org/img/wn/${currentState.data.icon}@2x.png`} alt=""/>
+                            <div className={styles.city}>{currentState.data.name} 
                                 <div>{formatDateWeather(new Date())}</div>
                                 </div>
                             <div className={styles.weather}>
                                 <img src={temp} alt="temp" width={'26px'} /> 
                                 <p>
-                                Температура воздуха: {state.data.temp} °C
+                                Температура воздуха: {currentState.data.temp} °C
                                 </p>
                             </div>
                             <div className={styles.weather}>
                                 <img src={hamidity} alt="hamidity" width={'26px'} />
-                                <p>Влажность: {state.data.hamidity} %</p> 
+                                <p>Влажность: {currentState.data.hamidity} %</p> 
                             </div>
                             <div className={styles.weather}>
                                 <img src={wind} alt="wind" width={'26px'} />
-                                <p>Скорость ветра: {state.data.windSpeed} м/с</p>
+                                <p>Скорость ветра: {currentState.data.windSpeed} м/с</p>
                             </div>
                             <div className={styles.weather}>
                                 <img src={desc} alt="description" width={'26px'} />
-                                <p> Описание: {state.data.description}</p>
+                                <p> Описание: {currentState.data.description}</p>
                             </div>
                         </div>
                     )}
-                    {state.error && <p style={{color: 'red'}}>{state.error}</p>}
+                    {currentState.error && <p style={{color: 'red'}}>{currentState.error}</p>}
             </div>
     )
  }

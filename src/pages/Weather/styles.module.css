@@ -2,7 +2,6 @@
     display: flex;
     flex-direction: column;
     margin-top: 10px;
-    padding-bottom: 10px;
     gap: 10px;
 }
 
@@ -33,7 +32,6 @@
     .form {
         flex-direction: row;
         align-items: center;
-        margin-bottom: 15px;
     }
     .wrapper {
         width: 250px;

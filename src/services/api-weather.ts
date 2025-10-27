@@ -16,11 +16,12 @@ export const defaultState: InfoWeather = {
     error: null,
 }
 
-export async function initialGeolocation (lat: number, lng: number): Promise<InfoWeather> {
-    try {
-        const res =  await axios
-        .get(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lng}&appid=${apiKey}`)
-        const weatherData = {
+export async function submitGeolocation(_prevState: InfoWeather, coordinates: {lat: number, lng: number}): Promise<InfoWeather> {
+    const {lat, lng} = coordinates;
+        try {
+            const res =  await axios
+            .get(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lng}&units=metric&appid=${apiKey}&lang=ru`)
+            const weatherData = {
                     name: res.data.name,
                     description: res.data.weather[0].description,
                     icon: res.data.weather[0].icon,
@@ -29,10 +30,10 @@ export async function initialGeolocation (lat: number, lng: number): Promise<Inf
                     windSpeed: res.data.wind.speed,
                 }
                 return {data: weatherData, error: null}
-    } catch (error) {
+        } catch (error) {
         console.error("Ошибка при получении данных геолокации", error);
         notifyGeolocation()
-    }
+        }
     return { ...defaultState,
         error: 'Геолокация не определена'
     }
